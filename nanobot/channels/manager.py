@@ -1,10 +1,7 @@
 """Channel manager for coordinating chat channels."""
 
-# 模块作用：通道管理器，协调多个聊天通道的启动、停止和消息路由
-# 设计目的：统一管理不同聊天平台集成，提供一致的生命周期管理
-# 好处：通道解耦，动态启用/禁用，错误隔离，统一状态监控
 import asyncio
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 from loguru import logger
 
@@ -13,10 +10,13 @@ from nanobot.bus.queue import MessageBus
 from nanobot.channels.base import BaseChannel
 from nanobot.config.schema import Config
 
+if TYPE_CHECKING:
+    from nanobot.session.manager import SessionManager
 
-# 作用：通道管理器核心类，管理所有聊天通道的生命周期
-# 设计目的：基于配置动态初始化通道，提供统一启动/停止接口
-# 好处：配置驱动，插件式架构，通道间完全隔离
+# 模块作用：通道管理器，协调多个聊天通道的启动、停止和消息路由  管理所有聊天通道的生命周期
+# 设计目的：统一管理不同聊天平台集成，提供一致的生命周期管理  基于配置动态初始化通道，提供统一启动/停止接口
+# 好处：通道解耦，动态启用/禁用，错误隔离，统一状态监控  配置驱动，插件式架构，通道间完全隔离
+ 
 class ChannelManager:
     """
     Manages chat channels and coordinates message routing.
@@ -27,12 +27,14 @@ class ChannelManager:
     - Route outbound messages
     """
     
+
     # 作用：初始化通道管理器，基于配置加载启用通道
     # 设计目的：延迟导入通道实现，优雅处理缺失依赖
     # 好处：配置即代码，依赖可选，启动时错误检测
-    def __init__(self, config: Config, bus: MessageBus):
+    def __init__(self, config: Config, bus: MessageBus, session_manager: "SessionManager | None" = None):
         self.config = config
         self.bus = bus
+        self.session_manager = session_manager
         self.channels: dict[str, BaseChannel] = {}
         self._dispatch_task: asyncio.Task | None = None
         
@@ -52,6 +54,7 @@ class ChannelManager:
                     self.config.channels.telegram,
                     self.bus,
                     groq_api_key=self.config.providers.groq.api_key,
+                    session_manager=self.session_manager,
                 )
                 logger.info("Telegram channel enabled")
             except ImportError as e:
