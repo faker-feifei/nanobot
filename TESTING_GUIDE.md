@@ -41,6 +41,21 @@ asyncio_mode = "auto"
 testpaths = ["tests"]
 ```
 
+
+---
+## 代码部署前检查语法
+
+pip install mypy pylint flake8 pyright
+- 类型检查（需代码有类型注解）
+mypy nanobot.py
+
+- 全面代码检查
+pylint nanobot.py
+
+- 快速风格检查
+flake8 nanobot.py
+
+
 ---
 
 ## 测试文件结构
