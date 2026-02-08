@@ -126,7 +126,8 @@ class LiteLLMProvider(LLMProvider):
             model = f"openrouter/{model}"
         elif self.is_aihubmix:
             model = f"openai/{model.split('/')[-1]}"
-        elif self.is_vllm:
+        # 支持ollama调用
+        elif self.is_vllm and not self.is_ollama:
             model = f"hosted_vllm/{model}"
         
         # kimi-k2.5 only supports temperature=1.0
