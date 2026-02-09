@@ -24,6 +24,8 @@ def version_callback(value: bool):
         raise typer.Exit()
 
 
+
+
 @app.callback()
 def main(
     version: bool = typer.Option(
@@ -245,7 +247,7 @@ def gateway(
     )
     
     # Create channel manager
-    channels = ChannelManager(config, bus, session_manager=session_manager)
+    channels = ChannelManager(config, bus)
     
     if channels.enabled_channels:
         console.print(f"[green]✓[/green] Channels enabled: {', '.join(channels.enabled_channels)}")
